@@ -8,7 +8,6 @@ output:
 
 #### Article ID: DRaKS
 #### Pilot: Kyle MacDonald
-#### Co-pilot: Tom Hardwicke  
 #### Start date: 7/11/17
 #### End date: 7/12/17
 #### CoPilot: Mike Frank
