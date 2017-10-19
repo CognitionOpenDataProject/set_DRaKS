@@ -187,7 +187,7 @@ pref_timbre
 This value is very close to (but not *exactly* the same as) the reported value. 
 
 ```{r}
-CODreports::compareValues(obtainedValue = pref_timbre$p.value, 
+compareValues(obtainedValue = pref_timbre$p.value, 
                           reportedValue = 9.08e-14, 
                           isP = TRUE)
 ```
@@ -196,6 +196,7 @@ Let's do this for the others, now, and compare.
 
 ```{r}
 p_table <- d_ss %>% 
+  filter(subjects != 6) %>% # NB - authors advise we should exclude :the participant who is exactly at chance" This appears to be subject 6
   group_by(manipulation) %>% 
   summarise(p_preference = BSDA::SIGN.test(prefer_manipulated, md = 0.5, 
                                 alternative = "two.sided")$p.value, 
@@ -215,15 +216,15 @@ Preference:
 ```{r}
 # Control vs. Harmonic preferred p.val
 compareValues(reportedValue = 2.89e-15, 
-              obtainedValue = p_table$p_preference[p_table$manipulation == "harmonic"])
+              obtainedValue = p_table$p_preference[p_table$manipulation == "harmonic"], isP = T)
 
 # Control vs. Timbre preferred p.val
 compareValues(reportedValue = 9.08e-14, 
-              obtainedValue = p_table$p_preference[p_table$manipulation == "timbre"])
+              obtainedValue = p_table$p_preference[p_table$manipulation == "timbre"], isP = T)
 
 # Control vs. Spatial preferred p.val
 compareValues(reportedValue = 3.63e-7, 
-              obtainedValue = p_table$p_preference[p_table$manipulation == "spatial"])
+              obtainedValue = p_table$p_preference[p_table$manipulation == "spatial"], isP = T)
 ```
 
 
