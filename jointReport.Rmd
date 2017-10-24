@@ -9,7 +9,7 @@ output:
 #### Article ID: DRaKS
 #### Pilot: Kyle MacDonald
 #### Start date: 7/11/17
-#### End date: 7/12/17
+#### End date: 10/19/17
 #### CoPilot: Mike Frank
 
 -------
@@ -49,7 +49,7 @@ library(readxl) # import excel files
 library(CODreports) # custom report functions
 library(magrittr) # for compound pipes
 library(stringr) # for working with strings
-library(BSDA)
+library(BSDA) # for sign test
 ```
 
 ## Step 2: Load data
@@ -167,7 +167,7 @@ table1 <- d_ss %>%
 table1 %>% kable()
 ```
 
-SUCCESS. We were able to reproduce the reported values. 
+MATCH. We were able to reproduce the reported values. 
 
 ### Inferential statistics
 
@@ -192,11 +192,13 @@ compareValues(obtainedValue = pref_timbre$p.value,
                           isP = TRUE)
 ```
 
-Let's do this for the others, now, and compare. 
+Let's do this for the others, now, and compare.
+
+Note that when we originally ran this we encountered major numerical errors. We contacted the authors and asked for assistance and they said that we should exclude "the participant who is exactly at chance" in the harmony condition. This does not appear to be specified in the paper. We think they must be referring to subject 6, so we exclude them below before carrying out the analysis
 
 ```{r}
 p_table <- d_ss %>% 
-  filter(subjects != 6) %>% # NB - authors advise we should exclude :the participant who is exactly at chance" This appears to be subject 6
+  filter(subjects != 6) %>% # NB - authors advise we should exclude "the participant who is exactly at chance" This appears to be subject 6
   group_by(manipulation) %>% 
   summarise(p_preference = BSDA::SIGN.test(prefer_manipulated, md = 0.5, 
                                 alternative = "two.sided")$p.value, 
@@ -209,7 +211,7 @@ Reprint the table:
 
 ![](figs/table1.png)
 
-Note that because the total preference and pleasantness numbers are identical for the `harmonic` and `timbre` conditions and the number of participants is also identical, the $p$-values are identical. This is not true, however, in Table 1. Thus, we see "major numerical errors" for some. 
+Let's explictly compare the reported and obtained values below.
 
 Preference:
 
@@ -245,9 +247,10 @@ compareValues(reportedValue = 3.24e-8,
 
 ```
 
-We wonder if these differences might be reporting errors since we don't see any reason why the p-value for Control vs. Harmonic (1/50) and Control vs. Timbre (1/50) should be any different. 
 
 INSUFFICIENT INFORMATION ERROR. I was unable to reproduce the correlational analyses because the musical training data was not included in the dataset. 
+
+Note: we contacted the authors and requested the musical training data. They were unable to locate this data and believe it is lost.
 
 ## Step 5: Conclusion
 
@@ -256,12 +259,12 @@ codReport(Report_Type = 'joint',
           Article_ID = 'DRaKS', 
           Insufficient_Information_Errors = 1,
           Decision_Errors = 0, 
-          Major_Numerical_Errors = 2, 
+          Major_Numerical_Errors = 5, 
           Minor_Numerical_Errors = 2, 
-          Author_Assistance = FALSE)
+          Author_Assistance = TRUE)
 ```
 
-The data and codebook were both in relatively good shape. We were able to reproduce the descriptive results for the preference and the unpleasantness measures. All the results were highly signficiant, but we obtained different $p$-values, two probably from computation/platform differences (minor). Our best guess is that the other two are reporting errors, but it's possible that we applied the sign test function in a different way or that these also were caused by differences in the computing environment (since these values were so small this could have played a larger role). In addition to the $p$-value differences, there was not enough information included in the dataset to reproduce the correlations between preference/pleasantness measures and participants' musical training. 
+We were able to reproduce the descriptive results for the preference and the unpleasantness measures. All the results were highly signficiant, but we encountered 5 major numerical differences for the $p$-values. The problems were not rectified by the authors instructions to exclude a participant from these analyses (this was not specified in the paper). In addition to the $p$-value differences, there was not enough information included in the dataset to reproduce the correlations between preference/pleasantness measures and participants' musical training. The authors were unable to locate this data and believe it is lost.
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
