@@ -8,9 +8,11 @@ output:
 
 #### Article ID: DRaKS
 #### Pilot: Kyle MacDonald
-#### Start date: 7/11/17
-#### End date: 10/19/17
 #### CoPilot: Mike Frank
+#### Start date: Jul 11 2017
+#### End date: Oct 19 2017
+#### Final verification: Tom Hardwicke
+#### Date: Nov 9 2017
 
 -------
 
@@ -37,6 +39,9 @@ Here is the relevant table from the paper:
 
 ```{r global_options, include=FALSE}
 knitr::opts_chunk$set(echo=TRUE, warning=FALSE, message=FALSE)
+
+# prepare an empty report object, we will update this each time we run compareValues2()
+reportObject <- data.frame("Article_ID" = NA, "valuesChecked" = 0, "eyeballs" = 0, "Total_df" = 0, "Total_p" = 0, "Total_mean" = 0, "Total_sd" = 0, "Total_se" = 0, "Total_ci" = 0, "Total_bf" = 0, "Total_t" = 0, "Total_F" = 0, "Total_es" = 0, "Total_median" = 0, "Total_irr" = 0, "Total_r" = 0, "Total_z" = 0, "Total_coeff" = 0, "Total_n" = 0, "Total_x2" = 0, "Total_other" = 0, "Insufficient_Information_Errors" = 0, "Decision_Errors" = 0, "Major_Numerical_Errors" = 0, "Minor_Numerical_Errors" = 0, "Major_df" = 0, "Major_p" = 0, "Major_mean" = 0, "Major_sd" = 0, "Major_se" = 0, "Major_ci" = 0, "Major_bf" = 0, "Major_t" = 0, "Major_F" = 0, "Major_es" = 0, "Major_median" = 0, "Major_irr" = 0, "Major_r" = 0, "Major_z" = 0, "Major_coeff" = 0, "Major_n" = 0, "Major_x2" = 0, "Major_other" = 0, "affectsConclusion" = NA, "error_typo" = 0, "error_specification" = 0, "error_analysis" = 0, "error_data" = 0, "error_unidentified" = 0, "Author_Assistance" = NA, "resolved_typo" = 0, "resolved_specification" = 0, "resolved_analysis" = 0, "resolved_data" = 0, "correctionSuggested" = NA, "correctionPublished" = NA)
 ```
 
 ## Step 1: Load packages
@@ -156,6 +161,8 @@ d_ss %<>%
 
 Reproduce the values for S reported in Table 1. S refers to to the number of participants (s_preferred) out of 50 who, on average, preferred the manipulated melodies over the control melodies, and the number of participants (s_pleasant) who, on average, rated the manipulated melody as more pleasant than the control melody.
 
+![](figs/table1.png)
+
 ```{r}
 table1 <- d_ss %>% 
   group_by(manipulation) %>% 
@@ -173,7 +180,7 @@ MATCH. We were able to reproduce the reported values.
 
 Perform hypothesis tests using the Sign test and BSDA package. 
 
-> Sign tests as implemented in R (R Development Core Team, 2014) supple- mented with the BSDA package (Arnholt, 2012) were used to test whether the number of participants who exceeded an expected preference or pleasantness proportion of 0.5 was greater (or less) than expected by chance. This yields the S statistic, which is the number of participants above the expected median (i.e., with proportion scores >0.5 under the null hypothesis). Under the null hypothesis, S is equal to n/2. P-values represent the binomial probability of S statistics at least as extreme as that observed (Maxwell & Delaney, 2004).
+> Sign tests as implemented in R (R Development Core Team, 2014) supplemented with the BSDA package (Arnholt, 2012) were used to test whether the number of participants who exceeded an expected preference or pleasantness proportion of 0.5 was greater (or less) than expected by chance. This yields the S statistic, which is the number of participants above the expected median (i.e., with proportion scores >0.5 under the null hypothesis). Under the null hypothesis, S is equal to n/2. P-values represent the binomial probability of S statistics at least as extreme as that observed (Maxwell & Delaney, 2004).
 
 We run `BSDA::SIGN.test` on the number of participants (out of the total, 50) who had a preference or pleasantness assignment above .5. We interpret "greater (or less)" to mean "two tailed".
 
@@ -187,9 +194,9 @@ pref_timbre
 This value is very close to (but not *exactly* the same as) the reported value. 
 
 ```{r}
-compareValues(obtainedValue = pref_timbre$p.value, 
-                          reportedValue = 9.08e-14, 
-                          isP = TRUE)
+reportObject <- compareValues2(obtainedValue = pref_timbre$p.value, 
+                          reportedValue = "0.0000000000000908", 
+                          valueType = 'p')
 ```
 
 Let's do this for the others, now, and compare.
@@ -217,16 +224,19 @@ Preference:
 
 ```{r}
 # Control vs. Harmonic preferred p.val
-compareValues(reportedValue = 2.89e-15, 
-              obtainedValue = p_table$p_preference[p_table$manipulation == "harmonic"], isP = T)
+reportObject <- compareValues2(obtainedValue =  p_table$p_preference[p_table$manipulation == "harmonic"], 
+                          reportedValue = "0.00000000000000289", 
+                          valueType = 'p')
 
 # Control vs. Timbre preferred p.val
-compareValues(reportedValue = 9.08e-14, 
-              obtainedValue = p_table$p_preference[p_table$manipulation == "timbre"], isP = T)
+reportObject <- compareValues2(obtainedValue =  p_table$p_preference[p_table$manipulation == "timbre"], 
+                          reportedValue = "0.0000000000000908", 
+                          valueType = 'p')
 
 # Control vs. Spatial preferred p.val
-compareValues(reportedValue = 3.63e-7, 
-              obtainedValue = p_table$p_preference[p_table$manipulation == "spatial"], isP = T)
+reportObject <- compareValues2(obtainedValue =  p_table$p_preference[p_table$manipulation == "spatial"], 
+                          reportedValue = "0.000000363", 
+                          valueType = 'p')
 ```
 
 
@@ -234,16 +244,19 @@ Pleasantness:
 
 ```{r}
 # Control vs. Harmonic pleasant p.val
-compareValues(reportedValue = 2.89e-15, 
-              obtainedValue = p_table$p_pleasant[p_table$manipulation == "harmonic"])
+reportObject <- compareValues2(obtainedValue =  p_table$p_pleasant[p_table$manipulation == "harmonic"], 
+                          reportedValue = "0.00000000000000289", 
+                          valueType = 'p')
 
 # Control vs. Timbre pleasant p.val
-compareValues(reportedValue = 9.08e-14, 
-              obtainedValue = p_table$p_pleasant[p_table$manipulation == "timbre"])
+reportObject <- compareValues2(obtainedValue =  p_table$p_pleasant[p_table$manipulation == "timbre"], 
+                          reportedValue = "0.0000000000000908", 
+                          valueType = 'p')
 
 # Control vs. Spatial pleasant p.val
-compareValues(reportedValue = 3.24e-8, 
-              obtainedValue = p_table$p_pleasant[p_table$manipulation == "spatial"])
+reportObject <- compareValues2(obtainedValue =  p_table$p_pleasant[p_table$manipulation == "spatial"], 
+                          reportedValue = "0.0000000324", 
+                          valueType = 'p')
 
 ```
 
@@ -254,17 +267,59 @@ Note: we contacted the authors and requested the musical training data. They wer
 
 ## Step 5: Conclusion
 
+We were able to reproduce the descriptive results for the preference and the unpleasantness measures. All the results were highly signficiant, but we encountered 5 major numerical differences for the $p$-values. The problems were not rectified by the authors instructions to exclude a participant from these analyses (this was not specified in the paper). In addition to the $p$-value differences, there was not enough information included in the dataset to reproduce the correlations between preference/pleasantness measures and participants' musical training. The authors were unable to locate this data and believe it is lost.
+
 ```{r}
-codReport(Report_Type = 'joint',
-          Article_ID = 'DRaKS', 
-          Insufficient_Information_Errors = 1,
-          Decision_Errors = 0, 
-          Major_Numerical_Errors = 5, 
-          Minor_Numerical_Errors = 2, 
-          Author_Assistance = TRUE)
+reportObject$Article_ID <- "DRaKS"
+reportObject$affectsConclusion <- "unclear"
+reportObject$error_typo <- 0
+reportObject$error_specification <- 1
+reportObject$error_analysis <- 0
+reportObject$error_data <- 1
+reportObject$error_unidentified <- 1
+reportObject$Author_Assistance <- T
+reportObject$resolved_typo <- 0
+reportObject$resolved_specification <- 0
+reportObject$resolved_analysis <- 0
+reportObject$resolved_data <- 0
+reportObject$correctionSuggested <- F
+reportObject$correctionPublished <- NA
+
+# decide on final outcome
+if(reportObject$Decision_Errors > 0 | reportObject$Major_Numerical_Errors > 0 | reportObject$Insufficient_Information_Errors > 0){
+  reportObject$finalOutcome <- "Failure"
+  if(reportObject$Author_Assistance == T){
+    reportObject$finalOutcome <- "Failure despite author assistance"
+  }
+}else{
+  reportObject$finalOutcome <- "Success"
+  if(reportObject$Author_Assistance == T){
+    reportObject$finalOutcome <- "Success with author assistance"
+  }
+}
+
+# save the report object
+filename <- paste0("reportObject_", reportObject$Article_ID,".csv")
+write_csv(reportObject, filename)
+
 ```
 
-We were able to reproduce the descriptive results for the preference and the unpleasantness measures. All the results were highly signficiant, but we encountered 5 major numerical differences for the $p$-values. The problems were not rectified by the authors instructions to exclude a participant from these analyses (this was not specified in the paper). In addition to the $p$-value differences, there was not enough information included in the dataset to reproduce the correlations between preference/pleasantness measures and participants' musical training. The authors were unable to locate this data and believe it is lost.
+## Report Object
+
+```{r, echo = FALSE}
+# display report object in chunks
+kable(reportObject[2:10], align = 'l')
+kable(reportObject[11:20], align = 'l')
+kable(reportObject[21:25], align = 'l')
+kable(reportObject[26:30], align = 'l')
+kable(reportObject[31:35], align = 'l')
+kable(reportObject[36:40], align = 'l')
+kable(reportObject[41:45], align = 'l')
+kable(reportObject[46:51], align = 'l')
+kable(reportObject[52:57], align = 'l')
+```
+
+## Session information
 
 ```{r session_info, include=TRUE, echo=TRUE, results='markup'}
 devtools::session_info()
